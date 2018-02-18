@@ -21,7 +21,7 @@ model.fit(X, Y, n_epoch=4,
           validation_set=(testX, testY),
           show_metric=True)
 
-model.save('minst.tfl')
+model.save('mnist.tfl')
 predictY = model.predict(testX)
 predictC = np.argmax(predictY, 1)
 testC = np.argmax(testY, 1)
