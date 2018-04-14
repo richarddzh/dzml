@@ -1,4 +1,5 @@
 import tensorflow as tf
+import tensorflow.contrib.rnn as rnn
 
 
 def create_vocabulary(text, vocabulary):
@@ -44,8 +45,15 @@ def make_classifier(x, y, func, name_scope, learning_rate):
         y_out = func(x)
         loss = tf.losses.sparse_softmax_cross_entropy(labels=y, logits=y_out)
         loss = tf.reduce_mean(loss)
-        train_step = tf.train.AdamOptimizer(learning_rate).minimize(loss)
+        train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss)
         accuracy = tf.equal(tf.arg_max(y_out, 1), y)
         accuracy = tf.cast(accuracy, tf.float32)
         accuracy = tf.reduce_mean(accuracy)
     return train_step, loss, accuracy
+
+
+def make_lstm(x, hidden_size, num_layers):
+    def make_cell(size, reuse):
+        return rnn.BasicLSTMCell(size, reuse=reuse)
+    cell = rnn.MultiRNNCell([])
+    return cell

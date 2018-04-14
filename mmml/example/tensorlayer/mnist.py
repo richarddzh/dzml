@@ -30,6 +30,3 @@ tl.utils.fit(sess, net, train_op, cost, X1, Y1, x, y, acc,
 
 tl.files.save_npz(net.all_params, name="model.npz")
 sess.close()
-
-
-
