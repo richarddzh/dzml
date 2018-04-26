@@ -1,15 +1,30 @@
 import tensorflow as tf
 import tensorflow.contrib.rnn as rnn
+import re
+import os.path as path
 
 
-def create_vocabulary(text, vocabulary):
-    if vocabulary is None:
-        vocabulary = {}
+def clean_text_file(in_file_path, out_file_path, encoding):
+    with open(in_file_path, 'r', encoding=encoding) as file:
+        text = file.read()
+    text = re.sub(r'\s+', ' ', text)
+    with open(out_file_path, 'w', encoding=encoding) as file:
+        file.write(text)
+
+
+def create_character_map(map_file_path, in_file_path, encoding):
+    character_map = ''
+    if path.exists(map_file_path):
+        with open(map_file_path, 'r', encoding=encoding) as file:
+            character_map = file.read()
+    with open(in_file_path, 'r', encoding=encoding) as file:
+        text = file.read()
     for c in text:
-        if c not in vocabulary:
-            vocabulary[c] = 0
-        vocabulary[c] += 1
-    return vocabulary
+        if c not in character_map:
+            character_map = character_map + c
+    character_map = ''.join(sorted(set(character_map)))
+    with open(map_file_path, 'w', encoding=encoding) as file:
+        file.write(character_map)
 
 
 def make_conv2d(x, name_scope, input_depth, kernel_size, n_kernel, pool_size):
@@ -52,8 +67,9 @@ def make_classifier(x, y, func, name_scope, learning_rate):
     return train_step, loss, accuracy
 
 
-def make_lstm(x, hidden_size, num_layers):
-    def make_cell(size, reuse):
-        return rnn.BasicLSTMCell(size, reuse=reuse)
-    cell = rnn.MultiRNNCell([])
-    return cell
+def make_lstm(inputs, initial_state, hidden_size, num_layers, reuse):
+    def make_cell():
+        return rnn.BasicLSTMCell(hidden_size, reuse=reuse)
+    cell = rnn.MultiRNNCell([make_cell() for _ in range(num_layers)])
+    outputs, state = rnn.static_rnn(cell, inputs, initial_state=initial_state)
+    return outputs, state
