@@ -4,27 +4,48 @@ import re
 import os.path as path
 
 
-def clean_text_file(in_file_path, out_file_path, encoding):
-    with open(in_file_path, 'r', encoding=encoding) as file:
+def file_read_all_text(file_path, encoding):
+    with open(file_path, 'r', encoding=encoding) as file:
         text = file.read()
-    text = re.sub(r'\s+', ' ', text)
-    with open(out_file_path, 'w', encoding=encoding) as file:
+    return text
+
+
+def file_write_all_text(file_path, text, encoding):
+    with open(file_path, 'w', encoding=encoding) as file:
         file.write(text)
+
+
+def clean_text_file(in_file_path, out_file_path, encoding):
+    text = file_read_all_text(in_file_path, encoding)
+    text = re.sub(r'\s+', ' ', text)
+    file_write_all_text(out_file_path, text, encoding)
 
 
 def create_character_map(map_file_path, in_file_path, encoding):
     character_map = ''
     if path.exists(map_file_path):
-        with open(map_file_path, 'r', encoding=encoding) as file:
-            character_map = file.read()
-    with open(in_file_path, 'r', encoding=encoding) as file:
-        text = file.read()
+        character_map = file_read_all_text(map_file_path, encoding)
+    text = file_read_all_text(in_file_path, encoding)
     for c in text:
         if c not in character_map:
             character_map = character_map + c
     character_map = ''.join(sorted(set(character_map)))
-    with open(map_file_path, 'w', encoding=encoding) as file:
-        file.write(character_map)
+    file_write_all_text(map_file_path, character_map, encoding)
+
+
+def map_text_to_integers(text, character_map):
+    return [character_map.index(c) for c in text]
+
+
+def map_integers_to_text(integers, character_map):
+    character_array = [character_map[i] for i in integers]
+    return ''.join(character_array)
+
+
+def file_read_text_as_integers(text_file_path, map_file_path, encoding):
+    text = file_read_all_text(text_file_path, encoding)
+    character_map = file_read_all_text(map_file_path, encoding)
+    return map_text_to_integers(text, character_map)
 
 
 def make_conv2d(x, name_scope, input_depth, kernel_size, n_kernel, pool_size):
