@@ -94,3 +94,17 @@ def make_lstm(inputs, initial_state, hidden_size, num_layers, reuse):
     cell = rnn.MultiRNNCell([make_cell() for _ in range(num_layers)])
     outputs, state = rnn.static_rnn(cell, inputs, initial_state=initial_state)
     return outputs, state
+
+
+def sequence_input_producer(raw_data, batch_size, num_step):
+    raw_data = tf.convert_to_tensor(raw_data, name="raw_data", dtype=tf.int32)
+    data_len = tf.size(raw_data)
+    batch_len = data_len // batch_size
+    data = tf.reshape(raw_data[0:batch_size*batch_len], [batch_size, batch_len])
+    epoch_size = (batch_len - 1) // num_step
+    i = tf.train.range_input_producer(epoch_size, shuffle=False).dequeue()
+    x = tf.strided_slice(data, [0, i * num_step], [batch_size, (i + 1) * num_step])
+    x.set_shape([batch_size, num_step])
+    y = tf.strided_slice(data, [0, i * num_step + 1], [batch_size, (i + 1) * num_step + 1])
+    y.set_shape([batch_size, num_step])
+    return x, y
