@@ -21,15 +21,20 @@ def clean_text_file(in_file_path, out_file_path, encoding):
     file_write_all_text(out_file_path, text, encoding)
 
 
+def update_character_map(character_map, text):
+    for c in text:
+        if c not in character_map:
+            character_map = character_map + c
+    character_map = ''.join(sorted(set(character_map)))
+    return character_map
+
+
 def create_character_map(map_file_path, in_file_path, encoding):
     character_map = ''
     if path.exists(map_file_path):
         character_map = file_read_all_text(map_file_path, encoding)
     text = file_read_all_text(in_file_path, encoding)
-    for c in text:
-        if c not in character_map:
-            character_map = character_map + c
-    character_map = ''.join(sorted(set(character_map)))
+    character_map = update_character_map(character_map, text)
     file_write_all_text(map_file_path, character_map, encoding)
 
 
