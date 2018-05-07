@@ -93,14 +93,6 @@ def make_classifier(x, y, func, name_scope, learning_rate):
     return train_step, loss, accuracy
 
 
-def make_lstm(inputs, initial_state, hidden_size, num_layers, reuse):
-    def make_cell():
-        return rnn.BasicLSTMCell(hidden_size, reuse=reuse)
-    cell = rnn.MultiRNNCell([make_cell() for _ in range(num_layers)])
-    outputs, state = rnn.static_rnn(cell, inputs, initial_state=initial_state)
-    return outputs, state
-
-
 def sequence_input_producer(raw_data, batch_size, num_step):
     raw_data = tf.convert_to_tensor(raw_data, name="raw_data", dtype=tf.int32)
     data_len = tf.size(raw_data)
