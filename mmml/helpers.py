@@ -17,7 +17,8 @@ def file_write_all_text(file_path, text, encoding):
 
 def clean_text_file(in_file_path, out_file_path, encoding):
     text = file_read_all_text(in_file_path, encoding)
-    text = re.sub(r'\s+', ' ', text)
+    text = re.sub(r'\s*\n\s*', '\n', text)
+    text = re.sub(r'[^\n\r\S]+', ' ', text)
     file_write_all_text(out_file_path, text, encoding)
 
 
