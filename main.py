@@ -10,6 +10,7 @@ num_step = 4
 
 with tf.Graph().as_default():
     x, y = helpers.sequence_input_producer(data, batch_size, num_step)
+
     sv = tf.train.Supervisor()
     with sv.managed_session() as session:
         for i in range(2):
