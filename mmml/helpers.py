@@ -1,5 +1,4 @@
 import tensorflow as tf
-import tensorflow.contrib.rnn as rnn
 import re
 import os.path as path
 
@@ -92,6 +91,12 @@ def make_classifier(x, y, func, name_scope, learning_rate):
         accuracy = tf.cast(accuracy, tf.float32)
         accuracy = tf.reduce_mean(accuracy)
     return train_step, loss, accuracy
+
+
+def make_embedding(x, vocab_size, embed_size):
+    embedding = tf.get_variable(name="embedding", shape=[vocab_size, embed_size], dtype=tf.float32)
+    y = tf.nn.embedding_lookup(embedding, x)
+    return y
 
 
 def sequence_input_producer(raw_data, batch_size, num_step):
