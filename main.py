@@ -16,28 +16,27 @@ learn_rate = 1.0
 init_scale = 0.1
 
 with tf.Graph().as_default():
-    x, y = helpers.sequence_input_producer(data, batch_size, num_step)
-    x = helpers.make_embedding(x, vocab_size, embed_size)
-    m = lstmmodel.LSTMModel(hidden_size, num_layers, reuse=False)
-    m.compute(batch_size, x)
-    x = tf.reshape(m.outputs, [-1, hidden_size])
-    x = helpers.make_dense(x, 'dense', hidden_size, vocab_size)
-    x = tf.reshape(x, [batch_size, num_step, vocab_size])
-    loss = tf.contrib.seq2seq.sequence_loss(
-        x, y,
-        tf.ones([batch_size, num_step], dtype=tf.float32),
-        average_across_timesteps=False,
-        average_across_batch=True)
-    cost = tf.reduce_sum(loss)
-    train_op = tf.train.GradientDescentOptimizer(learn_rate).minimize(cost)
     initializer = tf.random_uniform_initializer(-init_scale, init_scale)
+    with tf.variable_scope("model", initializer=initializer):
+        x, y = helpers.sequence_input_producer(data, batch_size, num_step)
+        x = helpers.make_embedding(x, vocab_size, embed_size)
+        m = lstmmodel.LSTMModel(hidden_size, num_layers, reuse=False)
+        m.compute(batch_size, x)
+        x = tf.reshape(m.outputs, [-1, hidden_size])
+        x = helpers.make_dense(x, 'dense', hidden_size, vocab_size)
+        x = tf.reshape(x, [batch_size, num_step, vocab_size])
+        loss = tf.contrib.seq2seq.sequence_loss(
+            x, y,
+            tf.ones([batch_size, num_step], dtype=tf.float32),
+            average_across_timesteps=False,
+            average_across_batch=True)
+        cost = tf.reduce_sum(loss)
+        train_op = tf.train.GradientDescentOptimizer(learn_rate).minimize(cost)
     with tf.train.MonitoredTrainingSession() as session:
-        with tf.variable_scope("model", initializer=initializer):
-            fetches = {
-                "train_op": train_op,
-                "cost": cost
-            }
-            for i in range(10000):
-                values = m.run(session, {}, fetches)
-                print(values["cost"])
-
+        fetches = {
+            "train_op": train_op,
+            "cost": cost
+        }
+        for i in range(10000):
+            values = m.run(session, {}, fetches)
+            print(values["cost"])
