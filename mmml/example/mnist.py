@@ -17,7 +17,7 @@ def classifier(x):
     return x
 
 
-train_step, loss, accuracy = mh.make_classifier(X, Y, classifier, 'classifier', 0.05)
+train_step, loss, accuracy = mh.make_classifier(X, Y, classifier, 0.05)
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     for i in range(2000):
