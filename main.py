@@ -31,12 +31,14 @@ with tf.Graph().as_default():
             average_across_timesteps=False,
             average_across_batch=True)
         cost = tf.reduce_sum(loss)
-        train_op = tf.train.GradientDescentOptimizer(learn_rate).minimize(cost)
-    with tf.train.MonitoredTrainingSession() as session:
+        global_step = tf.train.get_or_create_global_step()
+        train_op = tf.train.GradientDescentOptimizer(learn_rate).minimize(cost, global_step)
+    with tf.train.MonitoredTrainingSession(checkpoint_dir='./checkpoints/chinese/') as session:
         fetches = {
             "train_op": train_op,
-            "cost": cost
+            "cost": cost,
+            "global_step": global_step,
         }
         for i in range(10000):
             values = m.run(session, {}, fetches)
-            print(values["cost"])
+            print(values["global_step"], values["cost"])
